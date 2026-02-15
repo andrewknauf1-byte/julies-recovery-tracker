@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Recovery">
+<meta name="theme-color" content="#1A1D23">
+<title>Julie's Recovery Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{--bg:#1A1D23;--bg2:#22252D;--bg3:#2A2E37;--card:#2A2E37;--text:#F0EDE8;--text2:#9B978F;--text3:#6B6860;--accent:#E8944A;--accent-bg:rgba(232,148,74,.12);--go:#5EC26A;--go-bg:rgba(94,194,106,.12);--go-dark:#4AAF56;--wait:#E8944A;--wait-bg:rgba(232,148,74,.12);--stop:#E85C5C;--stop-bg:rgba(232,92,92,.12);--ice:#5CB8E8;--ice-bg:rgba(92,184,232,.12);--purple:#A68BE8;--purple-bg:rgba(166,139,232,.12);--border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);--shadow:0 2px 8px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);--shadow-lg:0 8px 32px rgba(0,0,0,.4);--r:16px;--rs:10px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:90px;-webkit-font-smoothing:antialiased}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,8px);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 6px;border:none;background:none;color:var(--text3);font-size:10px;font-family:inherit;font-weight:600;gap:3px;cursor:pointer;transition:color .2s}
+.nb.act{color:var(--accent)}
+.nb svg{width:22px;height:22px}
+.hdr{padding:16px 20px 0;position:sticky;top:0;background:linear-gradient(var(--bg) 85%,transparent);z-index:50;padding-bottom:12px}
+.hdr-row{display:flex;justify-content:space-between;align-items:baseline}
+.hdr-date{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.hdr-day{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em}
+.hdr-sub{font-size:12px;color:var(--text2);margin-top:2px;font-weight:500}
+.hero{margin:0 16px;border-radius:var(--r);padding:24px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.hero-go{background:linear-gradient(135deg,#2D6B3A 0%,#1F4D28 100%);border:1px solid rgba(94,194,106,.2)}
+.hero-wait{background:linear-gradient(135deg,#6B4A2D 0%,#4D351F 100%);border:1px solid rgba(232,148,74,.2)}
+.hero-good{background:linear-gradient(135deg,#2D5A6B 0%,#1F4150 100%);border:1px solid rgba(92,184,232,.2)}
+.hero-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;opacity:.7}
+.hero-main{font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:700;margin:8px 0 4px;line-height:1.15;letter-spacing:-.02em}
+.hero-sub{font-size:14px;font-weight:500;opacity:.75;line-height:1.4}
+.hero-countdown{font-family:'Fraunces',Georgia,serif;font-size:48px;font-weight:700;margin:10px 0 0;letter-spacing:-.03em;line-height:1}
+.hero-glow{position:absolute;top:-60px;right:-60px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hero-glow2{position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.03)}
+.sched{margin:12px 16px 0;background:var(--card);border-radius:var(--r);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.sched-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:14px}
+.sched-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.sched-row:last-child{border-bottom:none}
+.sched-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sched-dot-go{background:var(--go)}.sched-dot-wait{background:var(--wait)}.sched-dot-stop{background:var(--stop)}
+.sched-name{font-weight:700;font-size:14px;flex:1}
+.sched-time{font-size:13px;font-weight:700;text-align:right}
+.sched-time-go{color:var(--go)}.sched-time-wait{color:var(--wait)}.sched-time-stop{color:var(--stop)}
+.sched-sub{font-size:11px;color:var(--text3);font-weight:500}
+.section{padding:20px 16px 0}
+.sec-t{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-t::after{content:'';flex:1;height:1px;background:var(--border)}
+.pcard{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.pcard-head{display:flex;justify-content:space-between;align-items:flex-start}
+.pcard-name{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.pcard-sub{font-size:12px;color:var(--text2);font-weight:600;margin-top:1px}
+.pcard-dose{font-size:12px;color:var(--text3);font-weight:500;margin-top:3px;line-height:1.4}
+.badge{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;flex-shrink:0;margin-left:10px}
+.b-rec{background:var(--accent-bg);color:var(--accent)}.b-daily{background:var(--purple-bg);color:var(--purple)}.b-ice{background:var(--ice-bg);color:var(--ice)}
+.pcard-status{margin-top:14px;padding:12px 14px;border-radius:var(--rs);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}
+.ps-go{background:var(--go-bg);color:var(--go)}.ps-wait{background:var(--wait-bg);color:var(--wait)}.ps-stop{background:var(--stop-bg);color:var(--stop)}
+.pcard-status svg{width:18px;height:18px;flex-shrink:0}
+
+/* PROGRESS TRACKER — mg + pills */
+.prog{margin-top:14px;background:var(--bg);border-radius:var(--rs);padding:14px;border:1px solid var(--border)}
+.prog-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.prog-mg{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.prog-pills{font-size:13px;font-weight:700;color:var(--text2)}
+.prog-label{font-size:11px;color:var(--text3);font-weight:500;margin-bottom:8px}
+.prog-bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s ease}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:8px;margin-top:12px}
+.take-btn{flex:1;padding:16px;border:none;border-radius:var(--rs);font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:-.01em}
+.take-btn:active{transform:scale(.97)}
+.take-btn-go{background:var(--go);color:#1A1D23}
+.take-btn-off{background:var(--bg3);color:var(--text3);pointer-events:none}
+.log-past-btn{padding:16px;border:1.5px solid var(--border2);border-radius:var(--rs);background:none;color:var(--text2);font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap;letter-spacing:-.01em}
+.log-past-btn:active{background:var(--bg3)}
+
+.dose-log{margin-top:12px}
+.dose-entry{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.dose-entry:last-child{border-bottom:none}
+.de-info{display:flex;align-items:center;gap:8px}
+.de-num{width:22px;height:22px;border-radius:6px;background:var(--accent-bg);color:var(--accent);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.de-time{font-weight:700}
+.de-amt{color:var(--text2);font-weight:500;font-size:12px}
+.de-undo{color:var(--stop);font-weight:800;font-size:11px;cursor:pointer;padding:6px 14px;border-radius:20px;background:var(--stop-bg);border:none;font-family:inherit;text-transform:uppercase;letter-spacing:.06em}
+
+/* DAILY & ICE */
+.mcard{background:var(--card);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.mcard-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.mslots{display:flex;flex-wrap:wrap;gap:8px}
+.ms{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:var(--rs);padding:12px 16px;border:1.5px solid var(--border);cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none}
+.ms.taken{background:var(--go-bg);border-color:rgba(94,194,106,.3)}
+.ms.taken .sc{background:var(--go);border-color:var(--go)}
+.ms.taken .sc svg{opacity:1}
+.ms.ice-taken{background:var(--ice-bg);border-color:rgba(92,184,232,.3)}
+.ms.ice-taken .sc{background:var(--ice);border-color:var(--ice)}
+.ms.ice-taken .sc svg{opacity:1}
+.sc{width:24px;height:24px;border-radius:7px;border:2px solid var(--border2);background:var(--bg2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.sc svg{width:14px;height:14px;color:var(--bg);opacity:0;transition:opacity .15s}
+.sl{font-size:14px;font-weight:700}.sl-time{font-size:11px;color:var(--go);font-weight:700}
+.stack-tip{margin:12px 16px 0;background:var(--purple-bg);border:1px solid rgba(166,139,232,.15);border-radius:var(--r);padding:14px 16px;font-size:13px;font-weight:500;color:var(--purple);line-height:1.5}
+.stack-tip strong{font-weight:800}
+.pain-card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.pain-scale{display:flex;gap:4px;margin:10px 0}
+.pb{flex:1;aspect-ratio:1;border-radius:var(--rs);border:2px solid var(--border);background:var(--bg);font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.pb.sel{border-color:transparent;color:white;transform:scale(1.08)}
+.note-inp{width:100%;border:1.5px solid var(--border);border-radius:var(--rs);padding:14px 16px;font-size:16px;font-family:inherit;background:var(--bg);color:var(--text);resize:none;min-height:56px;outline:none;margin-top:10px}
+.note-inp:focus{border-color:var(--accent)}.note-inp::placeholder{color:var(--text3)}
+.save-btn{margin-top:10px;width:100%;padding:16px;background:var(--accent);color:var(--bg);border:none;border-radius:var(--rs);font-size:15px;font-weight:800;font-family:inherit;cursor:pointer}
+.save-btn:active{opacity:.85}
+.n-item{background:var(--bg);border-radius:var(--rs);padding:12px 14px;margin-top:10px;font-size:13px;border:1px solid var(--border)}
+.n-time{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:4px}
+.n-pain{display:inline-block;padding:3px 10px;border-radius:20px;color:white;font-weight:800;font-size:11px;margin-right:6px}
+.n-text{color:var(--text2);font-weight:500;margin-top:4px;line-height:1.4}
+.hday{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.hday-date{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:700;margin-bottom:12px}
+.hitem{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.hitem:last-child{border-bottom:none}
+.view{display:none}.view.active{display:block}
+.empty{text-align:center;padding:60px 40px;color:var(--text3);font-size:14px;font-weight:500}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes heroGlow{0%{opacity:.04}50%{opacity:.08}100%{opacity:.04}}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.pcard,.mcard,.pain-card,.hday{animation:fadeIn .35s ease backwards}
+.pcard:nth-child(2){animation-delay:.05s}.pcard:nth-child(3){animation-delay:.1s}
+.mcard:nth-child(2){animation-delay:.03s}.mcard:nth-child(3){animation-delay:.06s}.mcard:nth-child(4){animation-delay:.09s}.mcard:nth-child(5){animation-delay:.12s}
+.hero-glow{animation:heroGlow 4s ease-in-out infinite}
+.sched{animation:popIn .3s ease}
+::-webkit-scrollbar{width:0}
+
+/* CONFIRM + LOG PAST OVERLAYS */
+.cov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.cov.show{display:flex}
+.cbox{background:var(--card);border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow-lg);border:1px solid var(--border2);animation:popIn .2s ease}
+.c-title{font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:700;margin-bottom:6px}
+.c-detail{font-size:14px;color:var(--text2);margin-bottom:22px;line-height:1.5}
+.c-btns{display:flex;gap:10px}
+.c-yes{flex:1;padding:16px;background:var(--go);color:var(--bg);border:none;border-radius:var(--rs);font-size:16px;font-weight:800;font-family:inherit;cursor:pointer}
+.c-yes:active{opacity:.85}
+.c-no{flex:1;padding:16px;background:var(--bg);color:var(--text2);border:1.5px solid var(--border2);border-radius:var(--rs);font-size:16px;font-weight:800;font-family:inherit;cursor:pointer}
+.c-no:active{background:var(--bg2)}
+.c-time-input{width:100%;padding:14px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);color:var(--text);font-size:18px;font-family:inherit;font-weight:700;text-align:center;margin-bottom:16px;outline:none;-webkit-appearance:none}
+.c-time-input:focus{border-color:var(--accent)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--go);color:var(--bg);padding:14px 24px;border-radius:var(--r);font-weight:800;font-size:14px;z-index:300;box-shadow:var(--shadow-lg);transition:transform .3s ease;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.setup{margin:16px;background:var(--bg2);border-radius:var(--r);padding:16px;border:1px solid var(--border);font-size:13px;line-height:1.6;color:var(--text2)}
+.setup strong{color:var(--text);font-weight:800}
+.setup-x{display:block;margin-top:8px;background:none;border:none;color:var(--accent);font-weight:800;font-size:12px;font-family:inherit;cursor:pointer;padding:0;text-transform:uppercase;letter-spacing:.08em}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:800;color:var(--text2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.06em}
+.form-input{width:100%;padding:14px 16px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit;font-weight:600;outline:none;-webkit-appearance:none}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--text3)}
+select.form-input{padding-right:12px}
+.form-row{display:flex;gap:10px}
+.form-toggle{display:flex;gap:6px}
+.ft-btn{flex:1;padding:12px;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--bg);color:var(--text2);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s}
+.ft-btn.ft-active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.med-item{background:var(--bg);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.med-item-info{flex:1}
+.med-item-name{font-weight:800;font-size:14px}
+.med-item-detail{font-size:12px;color:var(--text3);margin-top:2px}
+.med-item-badge{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:12px;margin-left:8px}
+.med-del{padding:8px 16px;border-radius:var(--rs);background:var(--stop-bg);color:var(--stop);border:none;font-size:11px;font-weight:800;font-family:inherit;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;margin-left:12px}
+</style>
+</head>
+<body>
+
+<!-- CONFIRM DIALOG -->
+<div class="cov" id="cov"><div class="cbox" id="cbox-inner"></div></div>
+<div class="toast" id="toast"></div>
+
+<div id="v-today" class="view active">
+  <div class="hdr"><div class="hdr-row"><div class="hdr-date" id="hdr-date"></div><div class="hdr-day" id="hdr-day"></div></div><div class="hdr-sub">Julie's Recovery Tracker</div></div>
+  <div id="hero-wrap"></div>
+  <div id="sched-wrap"></div>
+  <div id="stack-tip"></div>
+  <div class="setup" id="setup" style="display:none"><strong>📱 Add to Home Screen</strong><br>Tap <strong>Share ↑</strong> then <strong>"Add to Home Screen."</strong><button class="setup-x" onclick="this.parentElement.style.display='none';localStorage.setItem('setup_dismissed','1')">Got it</button></div>
+  <div class="section"><div class="sec-t">Pain Medications</div><div id="pain-meds"></div></div>
+  <div class="section"><div class="sec-t">Daily Medications</div><div id="daily-meds"></div></div>
+  <div class="section"><div class="sec-t">Icing Schedule</div><div id="ice-sec"></div></div>
+  <div class="section" style="padding-bottom:24px"><div class="sec-t">How Are You Feeling?</div>
+    <div class="pain-card"><div style="font-size:15px;font-weight:800">Pain Level</div><div class="pain-scale" id="pain-scale"></div><textarea class="note-inp" id="note-inp" placeholder="Add a note about how you're feeling..." rows="2"></textarea><button class="save-btn" id="save-btn">Save Entry</button><div id="today-notes"></div></div>
+  </div>
+</div>
+
+<div id="v-history" class="view">
+  <div class="hdr"><div class="hdr-date">History</div><div class="hdr-sub">Past medication & pain logs</div></div>
+  <div class="section" id="hist-list" style="padding-bottom:24px"></div>
+</div>
+
+<div id="v-manage" class="view">
+  <div class="hdr"><div class="hdr-date">Medications</div><div class="hdr-sub">Add or remove medications</div></div>
+  <div class="section">
+    <div class="sec-t">Add New Medication</div>
+    <div class="pain-card" id="add-med-form">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <div class="form-toggle" id="med-type-toggle">
+          <button class="ft-btn ft-active" data-type="pain" onclick="setMedType('pain')">Pain / As Needed</button>
+          <button class="ft-btn" data-type="daily" onclick="setMedType('daily')">Daily / Scheduled</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Medication Name</label><input class="form-input" id="add-name" placeholder="e.g. Ibuprofen"></div>
+      <div class="form-group"><label class="form-label">Brand / Note <span style="color:var(--text3)">(optional)</span></label><input class="form-input" id="add-sub" placeholder="e.g. ADVIL"></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1"><label class="form-label">Dose Amount</label><input class="form-input" id="add-amt" type="number" placeholder="200"></div>
+        <div class="form-group" style="width:90px"><label class="form-label">Unit</label><select class="form-input" id="add-unit"><option value="mg">mg</option><option value="mcg">mcg</option><option value="ml">ml</option><option value="g">g</option><option value="puff">puff</option><option value="tab">tab</option></select></div>
+      </div>
+      <div id="pain-fields">
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Hours Between Doses</label><input class="form-input" id="add-interval" type="number" placeholder="6" value="6"></div>
+          <div class="form-group" style="flex:1"><label class="form-label">Max Doses/Day</label><input class="form-input" id="add-maxdoses" type="number" placeholder="4"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Daily Max (mg) <span style="color:var(--text3)">(optional)</span></label><input class="form-input" id="add-maxdaily" type="number" placeholder="e.g. 4000"></div>
+      </div>
+      <div id="daily-fields" style="display:none">
+        <div class="form-group"><label class="form-label">Dose Instructions</label><input class="form-input" id="add-dose-instr" placeholder="e.g. 2mg daily"></div>
+        <div class="form-group">
+          <label class="form-label">When to Take</label>
+          <div class="mslots" id="add-slots">
+            <div class="ms" onclick="toggleAddSlot(this,'Morning')"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sl">Morning</div></div>
+            <div class="ms" onclick="toggleAddSlot(this,'Afternoon')"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sl">Afternoon</div></div>
+            <div class="ms" onclick="toggleAddSlot(this,'Evening')"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sl">Evening</div></div>
+            <div class="ms" onclick="toggleAddSlot(this,'Bedtime')"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sl">Bedtime</div></div>
+            <div class="ms" onclick="toggleAddSlot(this,'As Needed')"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sl">As Needed</div></div>
+          </div>
+        </div>
+      </div>
+      <button class="save-btn" onclick="addMedication()" style="margin-top:16px">Add Medication</button>
+    </div>
+  </div>
+  <div class="section"><div class="sec-t">Pain Medications</div><div id="manage-pain-list"></div></div>
+  <div class="section" style="padding-bottom:24px"><div class="sec-t">Daily Medications</div><div id="manage-daily-list"></div></div>
+</div>
+
+<nav class="bnav">
+  <button class="nb act" data-v="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Today</button>
+  <button class="nb" data-v="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v5h5"/><path d="M3 8a9 9 0 1 1 1.5 5.5"/></svg>History</button>
+  <button class="nb" data-v="manage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Manage</button>
+</nav>
+
+<script>
+const SK='julie_rv5';
+const PM_KEY='julie_pm_meds';
+const DM_KEY='julie_dm_meds';
+
+const DEFAULT_PM=[
+  {id:'acetaminophen',name:'Acetaminophen',sub:'TYLENOL',amt:500,unit:'mg',interval:6,maxDaily:4000,maxDoses:8,note:'500mg per dose · Every 6 hrs · Max 4,000mg/day',asNeeded:true},
+  {id:'tramadol',name:'Tramadol',sub:'ULTRAM — for pain',amt:50,unit:'mg',interval:6,maxDaily:null,maxDoses:4,note:'50mg per dose · Every 6 hrs · Do NOT double',asNeeded:true},
+  {id:'celecoxib',name:'Celecoxib',sub:'celeBREX',amt:100,unit:'mg',interval:12,maxDaily:200,maxDoses:2,note:'100mg · Twice daily (morning & bedtime)',asNeeded:false}
+];
+const DEFAULT_DM=[
+  {id:'aspirin',name:'Aspirin',sub:'81mg EC tablet',dose:'Twice daily',slots:['Morning','Bedtime']},
+  {id:'estradiol',name:'Estradiol',sub:'ESTRACE',dose:'2mg daily',slots:['Morning']},
+  {id:'aplenzin',name:'Aplenzin',sub:'bupropion HBr',dose:'348mg daily',slots:['Morning']},
+  {id:'fluticasone',name:'Fluticasone-Salmeterol',sub:'ADVAIR inhaler',dose:'1 puff every 12 hrs',slots:['Morning','Evening']},
+  {id:'thyroid',name:'Thyroid (Pork)',sub:'ARMOUR THYROID',dose:'90mg daily',slots:['Morning']},
+  {id:'gabapentin',name:'Gabapentin',sub:'NEURONTIN — for sleep',dose:'600mg at bedtime',slots:['Bedtime']},
+  {id:'miralax',name:'Miralax',sub:'polyethylene glycol',dose:'17g as needed',slots:['As Needed']},
+];
+
+// Seed defaults on first use
+function initMeds(){
+  if(!localStorage.getItem(PM_KEY))localStorage.setItem(PM_KEY,JSON.stringify(DEFAULT_PM));
+  if(!localStorage.getItem(DM_KEY))localStorage.setItem(DM_KEY,JSON.stringify(DEFAULT_DM));
+}
+initMeds();
+
+function getPM(){try{return JSON.parse(localStorage.getItem(PM_KEY))||[]}catch{return[]}}
+function getDM(){try{return JSON.parse(localStorage.getItem(DM_KEY))||[]}catch{return[]}}
+function savePM(arr){localStorage.setItem(PM_KEY,JSON.stringify(arr))}
+function saveDM(arr){localStorage.setItem(DM_KEY,JSON.stringify(arr))}
+const ICE=['8 AM','10 AM','12 PM','2 PM','4 PM','6 PM','8 PM'];
+
+function load(){try{return JSON.parse(localStorage.getItem(SK))||{}}catch{return{}}}
+function save(d){localStorage.setItem(SK,JSON.stringify(d))}
+function todayKey(){return new Date().toLocaleDateString('en-CA')}
+function getDay(k){const d=load();if(!d[k])d[k]={pm:{},dm:{},ice:{},notes:[]};const dy=d[k];if(!dy.pm)dy.pm={};if(!dy.dm)dy.dm={};if(!dy.ice)dy.ice={};if(!dy.notes)dy.notes=[];return dy}
+function setDay(k,v){const d=load();d[k]=v;save(d)}
+function nowStr(){const n=new Date();let h=n.getHours();const m=n.getMinutes().toString().padStart(2,'0');const ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${m} ${ap}`}
+function fmtDate(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'})}
+function fmtDay(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{weekday:'long'})}
+function fmtFull(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}
+function fmtTime(ms){const d=new Date(ms);let h=d.getHours();const m=d.getMinutes().toString().padStart(2,'0');const ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${m} ${ap}`}
+function fmtHHMM(){const n=new Date();return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')}
+function timeStrFromHHMM(hhmm){const[h,m]=hhmm.split(':').map(Number);const ap=h>=12?'PM':'AM';const h12=h%12||12;return`${h12}:${m.toString().padStart(2,'0')} ${ap}`}
+function msFromHHMM(hhmm){const[h,m]=hhmm.split(':').map(Number);const d=new Date();d.setHours(h,m,0,0);return d.getTime()}
+function painColor(l){if(l<=2)return'var(--go)';if(l<=4)return'#A8C26D';if(l<=6)return'#E8C84A';if(l<=8)return'var(--wait)';return'var(--stop)'}
+function msUntil(t,hrs){const r=hrs*36e5-(Date.now()-t);return r>0?r:0}
+function fmtCountdown(ms){if(ms<=0)return'Now';const h=Math.floor(ms/36e5);const m=Math.ceil((ms%36e5)/6e4);if(h>0)return m>0?`${h}h ${m}m`:`${h}h`;return`${m}m`}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+// SEED FEB 14
+function seed(){
+  const k='2026-02-14',d=load();if(d[k]&&d[k]._seeded)return;
+  const day={pm:{},dm:{},ice:{},notes:[],_seeded:true};
+  const base=new Date('2026-02-14T00:00:00').getTime();
+  day.pm.acetaminophen={doses:[{time:base+6*36e5+10*6e4,amt:500,ts:'6:10 AM'},{time:base+12*36e5,amt:500,ts:'12:00 PM'},{time:base+19*36e5,amt:500,ts:'7:00 PM'}]};
+  day.pm.tramadol={doses:[{time:base+9*36e5,amt:50,ts:'9:00 AM'},{time:base+14.5*36e5,amt:50,ts:'2:30 PM'},{time:base+19*36e5,amt:50,ts:'7:00 PM'}]};
+  day.pm.celecoxib={doses:[{time:base+9*36e5,amt:100,ts:'9:00 AM'},{time:base+19*36e5,amt:100,ts:'7:00 PM'}]};
+  day.dm={aspirin:[0,1],estradiol:[0],aplenzin:[0],fluticasone:[0,1],thyroid:[0],gabapentin:[0]};
+  day.ice={0:true};d[k]=day;save(d);
+}
+
+// =========================================================
+// DIALOGS
+// =========================================================
+function closeDialog(){document.getElementById('cov').classList.remove('show')}
+
+function showTakeConfirm(medId){
+  const med=getPM().find(m=>m.id===medId);
+  const box=document.getElementById('cbox-inner');
+  box.innerHTML=`<div class="c-title">Take ${med.name}?</div>
+    <div class="c-detail">${med.amt}${med.unit} will be logged at ${nowStr()}</div>
+    <div class="c-btns"><button class="c-no" onclick="closeDialog()">Cancel</button>
+    <button class="c-yes" onclick="closeDialog();doTake('${med.id}',Date.now(),'${nowStr().replace("'","\\'")}')">Yes, Take It</button></div>`;
+  document.getElementById('cov').classList.add('show');
+}
+
+function showLogPast(medId){
+  const med=getPM().find(m=>m.id===medId);
+  const box=document.getElementById('cbox-inner');
+  box.innerHTML=`<div class="c-title">Log Past Dose</div>
+    <div class="c-detail">What time did you take ${med.name}?</div>
+    <input type="time" class="c-time-input" id="past-time" value="${fmtHHMM()}">
+    <div class="c-btns"><button class="c-no" onclick="closeDialog()">Cancel</button>
+    <button class="c-yes" id="log-past-yes">Log Dose</button></div>`;
+  document.getElementById('cov').classList.add('show');
+  document.getElementById('log-past-yes').onclick=()=>{
+    const val=document.getElementById('past-time').value;
+    if(!val)return;
+    closeDialog();
+    doTake(medId,msFromHHMM(val),timeStrFromHHMM(val));
+  };
+}
+
+function doTake(id,timeMs,timeStr){
+  const k=todayKey(),day=getDay(k),med=getPM().find(m=>m.id===id);
+  if(!day.pm[id])day.pm[id]={doses:[]};
+  day.pm[id].doses.push({time:timeMs,amt:med.amt,ts:timeStr});
+  // Sort by time so past doses appear in order
+  day.pm[id].doses.sort((a,b)=>a.time-b.time);
+  setDay(k,day);
+  showToast(`✓ ${med.name} ${med.amt}${med.unit} logged`);
+  renderToday();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function undoDose(id,idx){
+  const k=todayKey(),day=getDay(k);
+  if(day.pm[id]&&day.pm[id].doses[idx]!==undefined){
+    day.pm[id].doses.splice(idx,1);setDay(k,day);showToast('Dose removed');renderToday();
+  }
+}
+
+// STATUS
+function pmStat(med,day){
+  const doses=day.pm[med.id]?day.pm[med.id].doses:[];
+  const last=doses.length>0?doses[doses.length-1]:null;
+  const wait=last?msUntil(last.time,med.interval):0;
+  let dailyTotal=0;const s=new Date();s.setHours(0,0,0,0);
+  doses.forEach(d=>{if(d.time>=s.getTime())dailyTotal+=d.amt});
+  const doseCount=doses.filter(d=>d.time>=s.getTime()).length;
+  const atMax=med.maxDaily&&dailyTotal>=med.maxDaily;
+  const canTake=wait===0&&!atMax;
+  let nextTime=null;if(last&&wait>0)nextTime=fmtTime(last.time+med.interval*36e5);
+  return{doses,last,wait,dailyTotal,doseCount,atMax,canTake,nextTime}
+}
+
+// =========================================================
+// HERO
+// =========================================================
+function renderHero(){
+  const k=todayKey(),day=getDay(k),wrap=document.getElementById('hero-wrap');
+  let soonest=null,sWait=Infinity;
+  getPM().forEach(med=>{if(!med.asNeeded)return;const s=pmStat(med,day);if(s.atMax)return;if(s.wait<sWait){sWait=s.wait;soonest={med,s}}});
+  if(!soonest||sWait===0){
+    const ready=[];getPM().forEach(m=>{if(m.asNeeded){const s=pmStat(m,day);if(s.canTake)ready.push(m.name)}});
+    if(ready.length>0)wrap.innerHTML=`<div class="hero hero-go"><div class="hero-glow"></div><div class="hero-glow2"></div><div class="hero-label">Ready Now</div><div class="hero-main">You can take pain medication</div><div class="hero-sub">${ready.join(' & ')} available</div></div>`;
+    else wrap.innerHTML=`<div class="hero hero-good"><div class="hero-glow"></div><div class="hero-glow2"></div><div class="hero-label">All Caught Up</div><div class="hero-main">Daily limits reached</div><div class="hero-sub">Check back tomorrow or consult your doctor</div></div>`;
+  } else {
+    wrap.innerHTML=`<div class="hero hero-wait"><div class="hero-glow"></div><div class="hero-glow2"></div><div class="hero-label">Next Available</div><div class="hero-main">${soonest.med.name}</div><div class="hero-countdown">${fmtCountdown(sWait)}</div><div class="hero-sub">Available at ${soonest.s.nextTime}</div></div>`;
+  }
+}
+
+// SCHEDULE
+function renderSchedule(){
+  const k=todayKey(),day=getDay(k),wrap=document.getElementById('sched-wrap');
+  const anyDoses=getPM().some(m=>day.pm[m.id]&&day.pm[m.id].doses&&day.pm[m.id].doses.length>0);
+  if(!anyDoses){wrap.innerHTML='';return}
+  let rows='';
+  const sched=getPM().map(med=>{const s=pmStat(med,day);let nextMs=0;if(s.last)nextMs=s.last.time+med.interval*36e5;return{med,s,nextMs}}).sort((a,b)=>{if(a.s.canTake&&!b.s.canTake)return -1;if(!a.s.canTake&&b.s.canTake)return 1;return a.nextMs-b.nextMs});
+  sched.forEach(({med,s})=>{
+    let dot,tcls,tText,sub;
+    if(s.atMax){dot='sched-dot-stop';tcls='sched-time-stop';tText='Max reached';sub=`${s.dailyTotal}/${med.maxDaily}mg today`}
+    else if(s.canTake){dot='sched-dot-go';tcls='sched-time-go';tText='Ready now';sub=s.doseCount>0?`${s.doseCount} dose${s.doseCount>1?'s':''} today`:'No doses yet'}
+    else{dot='sched-dot-wait';tcls='sched-time-wait';tText=s.nextTime||'—';sub=`in ${fmtCountdown(s.wait)}`}
+    rows+=`<div class="sched-row"><div class="sched-dot ${dot}"></div><div style="flex:1"><div class="sched-name">${med.name}</div><div class="sched-sub">${sub}</div></div><div class="sched-time ${tcls}">${tText}</div></div>`;
+  });
+  wrap.innerHTML=`<div class="sched"><div class="sched-title">📋 Upcoming Schedule</div>${rows}</div>`;
+}
+
+// STACKING TIP
+function renderStackTip(){
+  const k=todayKey(),day=getDay(k),tip=document.getElementById('stack-tip');
+  const aS=pmStat(getPM()[0],day),tS=pmStat(getPM()[1],day);
+  if(aS.canTake&&tS.canTake&&(aS.doseCount>0||tS.doseCount>0))
+    tip.innerHTML=`<div class="stack-tip"><strong>💡 Stacking tip:</strong> Both are available. Take one now, save the other for ~3 hours so you always have something available.</div>`;
+  else if(aS.wait>0&&tS.wait>0&&aS.last&&tS.last&&Math.abs(aS.last.time-tS.last.time)<36e5)
+    tip.innerHTML=`<div class="stack-tip"><strong>⚠️ Overlap:</strong> You took both close together. Next time, space them ~3 hrs apart.</div>`;
+  else tip.innerHTML='';
+}
+
+// =========================================================
+// PAIN MED CARDS — with progress bar (mg + doses)
+// =========================================================
+function renderPainMeds(){
+  const k=todayKey(),day=getDay(k),c=document.getElementById('pain-meds');c.innerHTML='';
+  getPM().forEach(med=>{
+    const s=pmStat(med,day),card=document.createElement('div');card.className='pcard';
+
+    // Status
+    let statusHtml='';
+    if(s.atMax)statusHtml=`<div class="pcard-status ps-stop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Daily max reached</div>`;
+    else if(s.wait>0)statusHtml=`<div class="pcard-status ps-wait"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Available in ${fmtCountdown(s.wait)} · at ${s.nextTime}</div>`;
+    else statusHtml=`<div class="pcard-status ps-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>Available now</div>`;
+
+    // Progress bar — mg + dose count
+    const maxMg=med.maxDaily||med.maxDoses*med.amt;
+    const pct=Math.min(100,Math.round(s.dailyTotal/maxMg*100));
+    const clr=pct>=100?'var(--stop)':pct>=75?'var(--wait)':'var(--go)';
+    const pillLabel=`${s.doseCount} of ${med.maxDoses} dose${med.maxDoses>1?'s':''}`;
+    const mgLabel=med.maxDaily?`${s.dailyTotal.toLocaleString()} / ${med.maxDaily.toLocaleString()}mg`:`${s.dailyTotal}${med.unit}`;
+    const progHtml=`<div class="prog">
+      <div class="prog-row"><div class="prog-mg" style="color:${clr}">${mgLabel}</div><div class="prog-pills">${pillLabel}</div></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${clr}"></div></div></div>`;
+
+    // Buttons — Take Now + Log Past
+    let btnsHtml;
+    if(s.canTake){
+      btnsHtml=`<div class="btn-row"><button class="take-btn take-btn-go" onclick="showTakeConfirm('${med.id}')">Take ${med.amt}${med.unit} Now</button><button class="log-past-btn" onclick="showLogPast('${med.id}')">Log Past</button></div>`;
+    } else {
+      const reason=s.atMax?'Daily max reached':'Wait for timer';
+      btnsHtml=`<div class="btn-row"><button class="take-btn take-btn-off">${reason}</button><button class="log-past-btn" onclick="showLogPast('${med.id}')">Log Past</button></div>`;
+    }
+
+    // Dose log with numbered doses
+    let logHtml='';
+    if(s.doses.length>0){
+      logHtml='<div class="dose-log">';
+      const todayStart=new Date();todayStart.setHours(0,0,0,0);
+      let dNum=0;
+      s.doses.forEach((d,i)=>{
+        if(d.time>=todayStart.getTime())dNum++;
+        const ub=`<button class="de-undo" onclick="undoDose('${med.id}',${i})">Undo</button>`;
+        logHtml+=`<div class="dose-entry"><div class="de-info"><span class="de-num">#${dNum}</span><span class="de-time">${d.ts}</span><span class="de-amt">${d.amt}${med.unit}</span></div>${ub}</div>`;
+      });
+      logHtml+='</div>';
+    }
+
+    card.innerHTML=`<div class="pcard-head"><div><div class="pcard-name">${med.name}</div><div class="pcard-sub">${med.sub}</div><div class="pcard-dose">${med.note}</div></div><span class="badge b-rec">Recovery</span></div>${statusHtml}${progHtml}${btnsHtml}${logHtml}`;
+    c.appendChild(card);
+  });
+}
+
+// DAILY
+function renderDaily(){
+  const k=todayKey(),day=getDay(k),c=document.getElementById('daily-meds');c.innerHTML='';
+  getDM().forEach(med=>{
+    const card=document.createElement('div');card.className='mcard';const taken=day.dm[med.id]||[];
+    let sh='';med.slots.forEach((label,i)=>{const t=taken.includes(i);const cls=t?' taken':'';const th=t?'<div class="sl-time">✓ Done</div>':'';sh+=`<div class="ms${cls}" onclick="toggleDaily('${med.id}',${i})"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="sl">${label}</div>${th}</div></div>`});
+    card.innerHTML=`<div class="mcard-head"><div><div class="pcard-name" style="font-size:15px">${med.name}</div><div class="pcard-sub">${med.sub}</div><div class="pcard-dose">${med.dose}</div></div><span class="badge b-daily">Daily</span></div><div class="mslots">${sh}</div>`;
+    c.appendChild(card);
+  });
+}
+function toggleDaily(id,idx){const k=todayKey(),day=getDay(k);if(!day.dm[id])day.dm[id]=[];const i=day.dm[id].indexOf(idx);if(i>=0)day.dm[id].splice(i,1);else day.dm[id].push(idx);setDay(k,day);renderDaily()}
+
+// ICE
+function renderIce(){
+  const k=todayKey(),day=getDay(k),c=document.getElementById('ice-sec');
+  const card=document.createElement('div');card.className='mcard';
+  let sh='';ICE.forEach((label,i)=>{const t=day.ice[i];const cls=t?' ice-taken':'';const th=t?'<div class="sl-time" style="color:var(--ice)">✓ Done</div>':'';sh+=`<div class="ms${cls}" onclick="toggleIce(${i})"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="sl">${label}</div>${th}</div></div>`});
+  card.innerHTML=`<div class="mcard-head"><div><div class="pcard-name" style="font-size:15px">Ice Machine</div><div class="pcard-sub">Right knee — elevate above heart</div><div class="pcard-dose">10-20 min every 1-2 hrs while awake</div></div><span class="badge b-ice">Ice</span></div><div class="mslots">${sh}</div>`;
+  c.innerHTML='';c.appendChild(card);
+}
+function toggleIce(idx){const k=todayKey(),day=getDay(k);day.ice[idx]=!day.ice[idx];setDay(k,day);renderIce()}
+
+// PAIN & NOTES
+let selPain=0;
+function renderPainScale(){const c=document.getElementById('pain-scale');c.innerHTML='';for(let i=1;i<=10;i++){const b=document.createElement('button');b.className='pb'+(selPain===i?' sel':'');b.textContent=i;b.style.background=selPain===i?painColor(i):'var(--bg)';b.style.borderColor=selPain===i?'transparent':'var(--border)';b.onclick=()=>{selPain=selPain===i?0:i;renderPainScale()};c.appendChild(b)}}
+document.getElementById('save-btn').addEventListener('click',()=>{const k=todayKey(),day=getDay(k);const txt=document.getElementById('note-inp').value.trim();if(!selPain&&!txt)return;day.notes.push({time:nowStr(),pain:selPain||null,note:txt||null});setDay(k,day);selPain=0;document.getElementById('note-inp').value='';showToast('Entry saved');renderPainScale();renderNotes()});
+function renderNotes(){const k=todayKey(),day=getDay(k),c=document.getElementById('today-notes');c.innerHTML='';if(!day.notes||!day.notes.length)return;day.notes.slice().reverse().forEach(e=>{const d=document.createElement('div');d.className='n-item';let h=`<div class="n-time">${e.time}</div>`;if(e.pain)h+=`<span class="n-pain" style="background:${painColor(e.pain)}">Pain: ${e.pain}/10</span>`;if(e.note)h+=`<div class="n-text">${e.note}</div>`;d.innerHTML=h;c.appendChild(d)})}
+
+// HISTORY
+function undoHistDose(dateKey,medId,idx){
+  const d=load();if(!d[dateKey]||!d[dateKey].pm||!d[dateKey].pm[medId])return;
+  d[dateKey].pm[medId].doses.splice(idx,1);
+  if(d[dateKey].pm[medId].doses.length===0)delete d[dateKey].pm[medId];
+  save(d);showToast('Dose removed');renderHistory();
+}
+function undoHistNote(dateKey,idx){
+  const d=load();if(!d[dateKey]||!d[dateKey].notes)return;
+  d[dateKey].notes.splice(idx,1);save(d);showToast('Note removed');renderHistory();
+}
+
+function renderHistory(){
+  const data=load(),c=document.getElementById('hist-list');c.innerHTML='';
+  const keys=Object.keys(data).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort().reverse();
+  if(!keys.length){c.innerHTML='<div class="empty">No history yet</div>';return}
+  keys.forEach(dk=>{
+    const day=data[dk],div=document.createElement('div');div.className='hday';let items='';
+    getPM().forEach(med=>{
+      if(!day.pm||!day.pm[med.id]||!day.pm[med.id].doses||!day.pm[med.id].doses.length)return;
+      const doses=day.pm[med.id].doses;
+      items+=`<div style="margin-bottom:8px"><div style="font-weight:800;font-size:14px;margin-bottom:6px">${med.name} <span style="color:var(--text3);font-weight:500;font-size:12px">${doses.length} dose${doses.length>1?'s':''}</span></div>`;
+      doses.forEach((d,i)=>{
+        items+=`<div class="dose-entry"><div class="de-info"><span class="de-num">#${i+1}</span><span class="de-time">${d.ts}</span><span class="de-amt">${d.amt}${med.unit}</span></div><button class="de-undo" onclick="undoHistDose('${dk}','${med.id}',${i})">Undo</button></div>`;
+      });
+      items+=`</div>`;
+    });
+    getDM().forEach(med=>{if(!day.dm||!day.dm[med.id]||!day.dm[med.id].length)return;items+=`<div class="hitem"><span style="font-weight:700">${med.name}</span><span style="color:var(--text2)">${day.dm[med.id].map(i=>med.slots[i]||'?').join(', ')}</span></div>`});
+    if(day.ice){const ic=Object.values(day.ice).filter(v=>v).length;if(ic>0)items+=`<div class="hitem"><span style="font-weight:700;color:var(--ice)">🧊 Ice</span><span style="color:var(--text2)">${ic} sessions</span></div>`}
+    let nh='';if(day.notes&&day.notes.length)day.notes.forEach((e,ni)=>{let nc='';if(e.pain)nc+=`<span class="n-pain" style="background:${painColor(e.pain)}">Pain: ${e.pain}/10</span>`;if(e.note)nc+=`<div class="n-text">${e.note}</div>`;nh+=`<div class="n-item" style="margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:center"><div class="n-time">${e.time}</div><button class="de-undo" onclick="undoHistNote('${dk}',${ni})">Undo</button></div>${nc}</div>`});
+    if(!items&&!nh)return;div.innerHTML=`<div class="hday-date">${fmtFull(dk)}</div>${items}${nh}`;c.appendChild(div);
+  });
+}
+
+// =========================================================
+// MANAGE VIEW
+// =========================================================
+let addMedType='pain';
+let addSlots=[];
+
+function setMedType(type){
+  addMedType=type;
+  document.querySelectorAll('.ft-btn').forEach(b=>{b.classList.toggle('ft-active',b.dataset.type===type)});
+  document.getElementById('pain-fields').style.display=type==='pain'?'block':'none';
+  document.getElementById('daily-fields').style.display=type==='daily'?'block':'none';
+}
+
+function toggleAddSlot(el,slot){
+  const idx=addSlots.indexOf(slot);
+  if(idx>=0){addSlots.splice(idx,1);el.classList.remove('taken')}
+  else{addSlots.push(slot);el.classList.add('taken')}
+}
+
+function addMedication(){
+  const name=document.getElementById('add-name').value.trim();
+  if(!name){showToast('Please enter a medication name');return}
+  const sub=document.getElementById('add-sub').value.trim();
+  const amt=parseInt(document.getElementById('add-amt').value)||0;
+  const unit=document.getElementById('add-unit').value;
+  const id=name.toLowerCase().replace(/[^a-z0-9]/g,'')+'_'+Date.now();
+
+  if(addMedType==='pain'){
+    const interval=parseInt(document.getElementById('add-interval').value)||6;
+    const maxDoses=parseInt(document.getElementById('add-maxdoses').value)||4;
+    const maxDaily=parseInt(document.getElementById('add-maxdaily').value)||null;
+    const noteStr=`${amt}${unit} per dose · Every ${interval} hrs`+(maxDaily?` · Max ${maxDaily.toLocaleString()}${unit}/day`:'');
+    const med={id,name,sub:sub||name,amt,unit,interval,maxDaily,maxDoses,note:noteStr,asNeeded:true};
+    const list=getPM();list.push(med);savePM(list);
+  } else {
+    const doseInstr=document.getElementById('add-dose-instr').value.trim()||`${amt}${unit} daily`;
+    if(addSlots.length===0){showToast('Please select when to take it');return}
+    const med={id,name,sub:sub||name,dose:doseInstr,slots:[...addSlots]};
+    const list=getDM();list.push(med);saveDM(list);
+  }
+
+  document.getElementById('add-name').value='';
+  document.getElementById('add-sub').value='';
+  document.getElementById('add-amt').value='';
+  addSlots=[];
+  document.querySelectorAll('#add-slots .ms').forEach(el=>el.classList.remove('taken'));
+  showToast(`✓ ${name} added`);
+  renderManage();renderToday();
+}
+
+function confirmDeleteMed(type,id,name){
+  const box=document.getElementById('cbox-inner');
+  box.innerHTML=`<div class="c-title">Delete ${name}?</div>
+    <div class="c-detail">This will permanently remove ${name} from your medications. Dose history will be kept.</div>
+    <div class="c-btns"><button class="c-no" onclick="closeDialog()">Cancel</button>
+    <button class="c-yes" style="background:var(--stop)" onclick="closeDialog();doDeleteMed('${type}','${id}')">Delete</button></div>`;
+  document.getElementById('cov').classList.add('show');
+}
+
+function doDeleteMed(type,id){
+  if(type==='pm'){const list=getPM().filter(m=>m.id!==id);savePM(list)}
+  else{const list=getDM().filter(m=>m.id!==id);saveDM(list)}
+  showToast('Medication deleted');renderManage();renderToday();
+}
+
+function renderManage(){
+  const pmList=document.getElementById('manage-pain-list');
+  const dmList=document.getElementById('manage-daily-list');
+
+  let pmHtml='';
+  getPM().forEach(med=>{
+    pmHtml+=`<div class="med-item"><div class="med-item-info"><div class="med-item-name">${med.name}</div><div class="med-item-detail">${med.amt}${med.unit} · Every ${med.interval}hrs${med.maxDaily?' · Max '+med.maxDaily+med.unit+'/day':''}</div></div><button class="med-del" onclick="confirmDeleteMed('pm','${med.id}','${med.name.replace(/'/g,"\\'")}')">Delete</button></div>`;
+  });
+  pmList.innerHTML=pmHtml||'<div class="empty">No pain medications</div>';
+
+  let dmHtml='';
+  getDM().forEach(med=>{
+    dmHtml+=`<div class="med-item"><div class="med-item-info"><div class="med-item-name">${med.name}</div><div class="med-item-detail">${med.dose||med.note} · ${med.slots.join(', ')}</div></div><button class="med-del" onclick="confirmDeleteMed('dm','${med.id}','${med.name.replace(/'/g,"\\'")}')">Delete</button></div>`;
+  });
+  dmList.innerHTML=dmHtml||'<div class="empty">No daily medications</div>';
+}
+
+// MAIN
+function renderToday(){const k=todayKey();document.getElementById('hdr-date').textContent=fmtDate(k);document.getElementById('hdr-day').textContent=fmtDay(k);renderHero();renderSchedule();renderStackTip();renderPainMeds();renderDaily();renderIce();renderPainScale();renderNotes()}
+document.querySelectorAll('.nb').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.nb').forEach(b=>b.classList.remove('act'));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));btn.classList.add('act');document.getElementById('v-'+btn.dataset.v).classList.add('active');if(btn.dataset.v==='history')renderHistory();if(btn.dataset.v==='today')renderToday();if(btn.dataset.v==='manage')renderManage()})});
+setInterval(()=>{renderHero();renderSchedule();renderPainMeds()},15000);
+if(!localStorage.getItem('setup_dismissed')&&/Safari/.test(navigator.userAgent)&&!/Chrome/.test(navigator.userAgent))document.getElementById('setup').style.display='block';
+seed();renderToday();
+</script>
+</body>
+</html>
